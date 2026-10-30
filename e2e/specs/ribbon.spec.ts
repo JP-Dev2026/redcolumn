@@ -103,4 +103,39 @@ test.describe('ribbon', () => {
     await button(app, 'edit.explode').click();
     await expect.poll(async () => (await app.markups()).filter((m) => m.type === 'line').length).toBe(5);
   });
+
+  test('text formatting stays beside font size without growing the ribbon', async ({ app }) => {
+    await ribbon(app).getByRole('tab', { name: 'Markup' }).click();
+    await app.tool('text');
+    await app.drag([300, 450], [600, 600]);
+    const editor = app.page.locator('textarea.text-editor');
+    await expect(editor).toBeVisible();
+    await app.page.keyboard.type('RIBBON');
+    await app.page.keyboard.press('Control+Enter');
+    await expect(editor).toHaveCount(0);
+
+    await app.tool('select');
+    const [markup] = await app.markups();
+    await select(app, []);
+    await expect(ribbon(app).locator('.rb-props .seg')).toHaveCount(0);
+    const body = ribbon(app).locator('.rb-body');
+    const initialHeight = (await body.boundingBox())!.height;
+
+    await select(app, [markup!.id]);
+    const format = ribbon(app).locator('.rb-props .seg');
+    const fontSize = ribbon(app).locator('.rb-props .field:has(.font-size)');
+    await expect(format).toBeVisible();
+    await expect(format.locator('button')).toHaveCount(4);
+    const [formatBox, fontSizeBox, selectedBody] = await Promise.all([
+      format.boundingBox(),
+      fontSize.boundingBox(),
+      body.boundingBox(),
+    ]);
+    expect(formatBox).not.toBeNull();
+    expect(fontSizeBox).not.toBeNull();
+    expect(selectedBody).not.toBeNull();
+    expect(formatBox!.x - (fontSizeBox!.x + fontSizeBox!.width)).toBeLessThan(20);
+    expect(Math.abs(formatBox!.y + formatBox!.height / 2 - (fontSizeBox!.y + fontSizeBox!.height / 2))).toBeLessThan(3);
+    expect(selectedBody!.height).toBe(initialHeight);
+  });
 });
