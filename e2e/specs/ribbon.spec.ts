@@ -120,6 +120,7 @@ test.describe('ribbon', () => {
     await expect(ribbon(app).locator('.rb-props .seg')).toHaveCount(0);
     const body = ribbon(app).locator('.rb-body');
     const initialHeight = (await body.boundingBox())!.height;
+    expect(Math.abs(initialHeight - 106)).toBeLessThan(0.01);
 
     await select(app, [markup!.id]);
     const format = ribbon(app).locator('.rb-props .seg');
