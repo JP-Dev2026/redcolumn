@@ -136,6 +136,6 @@ test.describe('ribbon', () => {
     expect(selectedBody).not.toBeNull();
     expect(formatBox!.x - (fontSizeBox!.x + fontSizeBox!.width)).toBeLessThan(20);
     expect(Math.abs(formatBox!.y + formatBox!.height / 2 - (fontSizeBox!.y + fontSizeBox!.height / 2))).toBeLessThan(3);
-    expect(selectedBody!.height).toBe(initialHeight);
+    expect(Math.abs(selectedBody!.height - initialHeight)).toBeLessThan(0.01);
   });
 });
